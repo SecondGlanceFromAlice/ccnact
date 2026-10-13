@@ -405,6 +405,7 @@ class FakeUnitRegistry:  # pylint: disable=too-few-public-methods
 PINT_SI = pint.UnitRegistry()
 SI = FakeUnitRegistry(PINT_SI)
 
+
 class DimensionalAnalysis:
     """context manager enabling true Pint unit checks"""
 

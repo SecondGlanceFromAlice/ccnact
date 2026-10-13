@@ -1,14 +1,19 @@
+"""Tests for use with pytest"""
+
 import os
-
-import numpy as np
-from ccnact import DimensionalAnalysis, SI, constants, cfg_ccn, ode_rhs, eqp, stop_cond, initial_condition, solve, parcel
-
 import platform
 from contextlib import nullcontext
 from pathlib import Path
 
+import numpy as np
 import pytest
 from open_atmos_jupyter_utils import notebook_vars
+
+from ccnact import (SI, DimensionalAnalysis, cfg_ccn, constants, eqp,
+                    initial_condition, ode_rhs, parcel, solve, stop_cond)
+
+# pylint: disable=non-ascii-name,fixme
+
 
 @pytest.mark.parametrize(
     "ctx",
@@ -21,6 +26,7 @@ def test_constants(ctx):
     """calls the constants() function with and without the unit handling"""
     with ctx:
         _ = constants()
+
 
 def test_ode_rhs():
     """checks unit correctness in the ODE definition"""
@@ -40,6 +46,7 @@ def test_ode_rhs():
         assert rhs[ix.p_d].check("[pressure] / [time]")
         assert all(x.check("1 / [time]") for x in rhs[ix.x])
 
+
 def test_stop_cond():
     """checks unit correctness in the stopping condition definition"""
     with DimensionalAnalysis():
@@ -56,6 +63,7 @@ def test_stop_cond():
         # Assert
         assert drh_dt.check("1 / [time]")
 
+
 def test_dimensional_analysis():
     """checks if the dimensional analysis logic throws an error on bogus addition"""
     with pytest.raises(Exception) as excinfo:
@@ -64,14 +72,13 @@ def test_dimensional_analysis():
             __ = c.T_0C + c.g
     assert "Cannot convert from 'kelvin' ([temperature]) to" in str(excinfo.value)
 
+
 def test_case_from_the_paper():
     """repropoduces simulation from the GMD paper draft asserting on the final values"""
     c, si = constants()
     _, ix, s = cfg_ccn(c, si)
     y0 = initial_condition(eqp, c, s, ix)
-    sol = solve(
-        c=c, s=s, ix=ix, y0=y0, stop_at_s_max=False, method="LSODA", rtol=1e-4
-    )
+    sol = solve(c=c, s=s, ix=ix, y0=y0, stop_at_s_max=False, method="LSODA", rtol=1e-4)
 
     with DimensionalAnalysis():
         c, si = constants()
@@ -95,6 +102,7 @@ def test_case_from_the_paper():
     assert f"{max(rh - 1):.2g~}" == "0.0016"
     assert f"{n_a.to(u := si.cm**-3):.4g~}" == "1091 / cm ** 3"
     assert f"{err.to(u):.3g~}" == "182 / cm ** 3"
+
 
 @pytest.mark.parametrize("stop_at_s_max", (True, False))
 def test_parcel(stop_at_s_max):
@@ -125,6 +133,7 @@ def test_parcel(stop_at_s_max):
     )
     np.testing.assert_approx_equal(max(rh), 1.002026)
     np.testing.assert_approx_equal(n1_act, 220e6)
+
 
 class TestExampleBasics:
     """testing results of computation in the notebook (incl. time measurements)"""
@@ -165,19 +174,14 @@ class TestExampleBasics:
         ),
     )
     def test_check_values(nb_vars_basics, var, index, value):
-        np.testing.assert_approx_equal(
-            nb_vars_basics[var][index], value, significant=5
-        )
+        np.testing.assert_approx_equal(nb_vars_basics[var][index], value, significant=5)
 
     @staticmethod
     @pytest.mark.xfail(
         platform.system() == "Darwin" and platform.machine() == "x86_64",
         reason="GitHub workers performance seem to vary",
     )
-    @pytest.mark.xfail(
-        'CI' not in os.environ,
-        reason="Checking only on CI"
-    )
+    @pytest.mark.xfail("CI" not in os.environ, reason="Checking only on CI")
     def test_no_regression_in_walltime(nb_vars_basics):
         assert nb_vars_basics["wall_time"] < 15 * SI.s
 
