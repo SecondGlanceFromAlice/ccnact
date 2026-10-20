@@ -24,7 +24,7 @@ repos:
     rev: v4.0.7
     hooks:
       - id: pylint
-        additional_dependencies: [scipy, pint]
+        additional_dependencies: [scipy, pint, pytest, open-atmos-jupyter-utils]
         args:
           [
             "-rn", # Only display messages
