@@ -24,6 +24,7 @@ repos:
     rev: v4.0.7
     hooks:
       - id: pylint
+        language: system
         args:
           [
             "-rn", # Only display messages
