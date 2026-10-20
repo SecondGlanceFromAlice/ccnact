@@ -24,7 +24,7 @@ repos:
     rev: v4.0.7
     hooks:
       - id: pylint
-        language: system
+        additional_dependencies: [scipy, pint]
         args:
           [
             "-rn", # Only display messages
