@@ -9,8 +9,18 @@ import numpy as np
 import pytest
 from open_atmos_jupyter_utils import notebook_vars
 
-from ccnact import (SI, DimensionalAnalysis, cfg_ccn, constants, eqp,
-                    initial_condition, ode_rhs, parcel, solve, stop_cond)
+from ccnact import (
+    SI,
+    DimensionalAnalysis,
+    cfg_ccn,
+    constants,
+    eqp,
+    initial_condition,
+    ode_rhs,
+    parcel,
+    solve,
+    stop_cond,
+)
 
 # pylint: disable=non-ascii-name,fixme
 
